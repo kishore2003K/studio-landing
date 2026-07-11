@@ -355,7 +355,7 @@ export default function WeddingHero() {
   );
 
   return (
-    <div ref={containerRef} className="relative w-full h-screen overflow-hidden bg-[#1a1a1a] text-white/90 font-sans">
+    <div ref={containerRef} className="relative w-full h-screen overflow-hidden bg-background text-white/90 font-sans">
       <style>{`
         .card {
           box-shadow: 6px 6px 10px 2px rgba(0, 0, 0, 0.6);

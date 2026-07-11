@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050505;
-  --foreground: #ededed;
-  --accent: #e6d5b8;
-  --muted: #1a1a1a;
-  --muted-foreground: #888888;
-  --border: #222222;
+  --background: #141D38;
+  --foreground: #F8FAFC;
+  --accent: #FCDB32;
+  --muted: #1E294A;
+  --muted-foreground: #94A3B8;
+  --border: #2A365D;
 }
 
 @theme inline {
@@ -69,8 +69,13 @@ body {
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .animate-marquee {
@@ -78,8 +83,15 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .animate-pulse-glow {

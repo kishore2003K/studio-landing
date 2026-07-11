@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Image from 'next/image';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -80,23 +81,14 @@ export default function About() {
             ref={imageRef}
             className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-muted opacity-0"
           >
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-              }}
+            <Image
+              src="/wedding_card_1_1783780185249.png"
+              alt="About Clikz Studio"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-[8rem] md:text-[12rem] font-bold leading-none tracking-tighter opacity-20 font-serif">
-                  C
-                </div>
-                <div className="text-xs uppercase tracking-widest text-muted-foreground mt-4">
-                  Clikz Studio
-                </div>
-              </div>
-            </div>
+            <div className="absolute inset-0 bg-black/20" />
             {/* Decorative corner marks */}
             <div className="absolute top-6 left-6 w-8 h-8 border-l border-t border-white/20" />
             <div className="absolute bottom-6 right-6 w-8 h-8 border-r border-b border-white/20" />
