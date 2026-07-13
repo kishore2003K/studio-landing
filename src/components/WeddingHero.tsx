@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import Image from 'next/image';
+import logo from '@/assets/clikz_logo.png';
 
 const data = [
   {
@@ -377,9 +379,9 @@ export default function WeddingHero() {
         }
       `}</style>
 
-      <nav className="hero-nav fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 py-6 font-medium">
-        <div className="flex items-center gap-2 text-sm uppercase tracking-widest">
-          <div className="w-4 h-4 bg-white rounded-full flex-shrink-0" />
+      <nav className="hero-nav fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 py-4 font-medium bg-black/40 backdrop-blur-md border-b border-white/10">
+        <div className="flex items-center gap-3 text-sm uppercase tracking-widest">
+          <Image src={logo} alt="Clikz Logo" width={40} height={40} className="flex-shrink-0 object-contain" />
           <span className="hidden md:inline">CLIKZ WEDDING FILMS</span>
         </div>
         <div className="flex gap-6 text-xs uppercase tracking-widest">
