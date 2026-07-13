@@ -8,27 +8,28 @@ const data = [
     place: 'The Woodlands',
     title: 'MAJESTIC',
     title2: 'NATURE',
-
+    description: 'Experience the magic of nature on your special day.',
     image: '/wedding_hero_bg_1783780173180.png',
   },
   {
     place: 'Bridal Suite',
     title: 'THE PERFECT',
     title2: 'RINGS',
+    description: 'Capture the intricate details of your eternal bond.',
     image: '/wedding_card_1_1783780185249.png',
   },
   {
     place: 'Enchanted Forest',
     title: 'A ROMANTIC',
     title2: 'WALK',
-
+    description: 'Step into a fairy tale with your loved one.',
     image: '/wedding_card_2_1783780197089.png',
   },
   {
     place: 'Twilight Meadow',
     title: 'MAGICAL',
     title2: 'RECEPTION',
-
+    description: 'Celebrate your union under the twilight sky.',
     image: '/wedding_card_3_1783780207183.png',
   },
 ];
