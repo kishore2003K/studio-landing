@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
-
 import Image from 'next/image';
 
 const slides = [
@@ -37,186 +36,117 @@ const slides = [
 ];
 
 export default function Slider() {
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
-  const progressRef = useRef<HTMLDivElement>(null);
-  const currentIndexRef = useRef(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const autoPlayRef = useRef<gsap.core.Tween | null>(null);
-  const isAnimating = useRef(false);
 
-  const goToSlide = useCallback(
-    (index: number) => {
-      if (isAnimating.current || index === currentIndexRef.current) return;
-      isAnimating.current = true;
+  const goToSlide = useCallback((index: number) => {
+    if (!trackRef.current) return;
 
-      const direction = index > currentIndexRef.current ? 1 : -1;
-      const currentSlide = slidesRef.current[currentIndexRef.current];
-      const nextSlide = slidesRef.current[index];
+    // Calculate width of one card + gap
+    const cardEl = trackRef.current.children[0] as HTMLElement;
+    if (!cardEl) return;
 
-      if (!currentSlide || !nextSlide) {
-        isAnimating.current = false;
-        return;
-      }
+    const style = window.getComputedStyle(cardEl);
+    const marginRight = parseFloat(style.marginRight) || 0;
+    const cardOuterWidth = cardEl.offsetWidth + 24; // 24px is gap-6 in Tailwind
 
-      const tl = gsap.timeline({
-        onComplete: () => {
-          currentIndexRef.current = index;
-          setActiveIndex(index);
-          isAnimating.current = false;
-          resetAutoPlay();
-        },
+    setActiveIndex(index);
+
+    gsap.to(trackRef.current, {
+      x: -index * cardOuterWidth,
+      duration: 1.2,
+      ease: 'expo.inOut',
+    });
+
+    // Subtle scale and fade effect on cards to highlight the active one
+    Array.from(trackRef.current.children).forEach((child, i) => {
+      // Animate the card wrapper
+      gsap.to(child, {
+        scale: i === index ? 1 : 0.9,
+        opacity: i === index ? 1 : 0.4,
+        duration: 1.2,
+        ease: 'expo.inOut',
       });
 
-      // Animate out current slide
-      tl.to(currentSlide, {
-        opacity: 0,
-        y: -60 * direction,
-        scale: 0.95,
-        duration: 0.5,
-        ease: 'power3.in',
-      });
-
-      // Set up next slide
-      gsap.set(nextSlide, { opacity: 0, y: 80 * direction, scale: 1.05 });
-
-      // Animate in next slide
-      tl.to(
-        nextSlide,
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.7,
-          ease: 'power3.out',
-        },
-        '-=0.2'
-      );
-
-      // Animate title text
-      const titleEl = nextSlide.querySelector('.slide-title');
-      const metaEl = nextSlide.querySelector('.slide-meta');
-
-      if (titleEl) {
-        tl.fromTo(
-          titleEl,
-          { y: 40, opacity: 0, clipPath: 'inset(0 0 100% 0)' },
-          {
-            y: 0,
-            opacity: 1,
-            clipPath: 'inset(0 0 0% 0)',
-            duration: 0.6,
-            ease: 'power3.out',
-          },
-          '-=0.5'
-        );
+      // Dramatic zoom reveal on the image inside
+      const img = child.querySelector('img');
+      if (img) {
+        if (i === index) {
+          gsap.fromTo(
+            img,
+            { scale: 1.3, filter: 'brightness(1.2)' },
+            { scale: 1.05, filter: 'brightness(1)', duration: 1.5, ease: 'expo.out' }
+          );
+        } else {
+          gsap.to(img, {
+            scale: 1,
+            filter: 'brightness(0.7)',
+            duration: 1.2,
+            ease: 'expo.inOut',
+          });
+        }
       }
-
-      if (metaEl) {
-        tl.fromTo(
-          metaEl,
-          { y: 20, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' },
-          '-=0.3'
-        );
-      }
-
-      // Update progress bar
-      gsap.to(progressRef.current, {
-        scaleX: (index + 1) / slides.length,
-        duration: 0.4,
-        ease: 'power2.out',
-      });
-    },
-    []
-  );
-
-  const resetAutoPlay = useCallback(() => {
-    if (autoPlayRef.current) {
-      autoPlayRef.current.kill();
-    }
-
-    // Reset progress bar
-    gsap.set(progressRef.current, { scaleX: 0 });
-
-    autoPlayRef.current = gsap.to(
-      { val: 0 },
-      {
-        val: 1,
-        duration: 4,
-        ease: 'none',
-        onUpdate: function () {
-          if (progressRef.current) {
-            progressRef.current.style.transform = `scaleX(${this.targets()[0].val})`;
-          }
-        },
-        onComplete: () => {
-          const next =
-            (currentIndexRef.current + 1) % slides.length;
-          goToSlide(next);
-        },
-      }
-    );
-  }, [goToSlide]);
+    });
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Entry animation
       gsap.fromTo(
-        sliderRef.current,
+        sectionRef.current,
         { opacity: 0, y: 60 },
         { opacity: 1, y: 0, duration: 1, delay: 0.3, ease: 'power3.out' }
       );
 
-      // Set initial slide
-      const firstSlide = slidesRef.current[0];
-      if (firstSlide) {
-        gsap.set(firstSlide, { opacity: 1, y: 0 });
+      // Initialize card scales
+      if (trackRef.current) {
+        Array.from(trackRef.current.children).forEach((child, i) => {
+          gsap.set(child, {
+            scale: i === 0 ? 1 : 0.95,
+            opacity: i === 0 ? 1 : 0.4,
+          });
+        });
       }
+    }, sectionRef);
 
-      resetAutoPlay();
-    }, sliderRef);
+    return () => ctx.revert();
+  }, []);
 
-    return () => {
-      ctx.revert();
-      if (autoPlayRef.current) {
-        autoPlayRef.current.kill();
-      }
-    };
-  }, [resetAutoPlay]);
+  // Auto-play effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const nextIndex = (activeIndex + 1) % slides.length;
+      goToSlide(nextIndex);
+    }, 4000); // Auto-slide every 4 seconds
+
+    return () => clearTimeout(timer);
+  }, [activeIndex, goToSlide]);
 
   return (
-    <section ref={sliderRef} id="work" className="relative py-24 md:py-32 opacity-0">
+    <section ref={sectionRef} id="work" className="relative py-24 md:py-32 opacity-0 overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12">
         {/* Section header */}
-        <div className="flex items-end justify-between mb-16">
+        <div className="flex items-end justify-between mb-12">
           <div>
-            <span className="text-xs uppercase tracking-widest text-muted-foreground mb-4 block">
-              Selected Work
-            </span>
+
             <h2 className="text-4xl md:text-6xl font-bold tracking-tighter font-serif">
               Featured Films
             </h2>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 hidden sm:flex">
             <button
-              onClick={() =>
-                goToSlide(
-                  (currentIndexRef.current - 1 + slides.length) % slides.length
-                )
-              }
-              className="w-12 h-12 rounded-full border border-border flex items-center justify-center hover:bg-foreground hover:text-background transition-all duration-300"
+              onClick={() => goToSlide((activeIndex - 1 + slides.length) % slides.length)}
+              className="w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-300 border-border hover:bg-foreground hover:text-background"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M10 12L6 8L10 4" />
               </svg>
             </button>
             <button
-              onClick={() =>
-                goToSlide((currentIndexRef.current + 1) % slides.length)
-              }
-              className="w-12 h-12 rounded-full border border-border flex items-center justify-center hover:bg-foreground hover:text-background transition-all duration-300"
+              onClick={() => goToSlide((activeIndex + 1) % slides.length)}
+              className="w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-300 border-border hover:bg-foreground hover:text-background"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M6 4L10 8L6 12" />
@@ -225,80 +155,81 @@ export default function Slider() {
           </div>
         </div>
 
-        {/* Slider */}
-        <div className="relative h-[400px] md:h-[550px] rounded-2xl overflow-hidden bg-muted">
-          {slides.map((slide, i) => (
-            <div
-              key={slide.id}
-              ref={(el) => { slidesRef.current[i] = el; }}
-              className="slider-slide rounded-2xl relative"
-            >
-              <Image 
-                src={slide.image} 
-                alt={slide.title}
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-black/40" />
+        {/* Slider Track Container */}
+        <div className="relative w-full">
+          <div ref={trackRef} className="flex gap-6 flex-nowrap w-max">
+            {slides.map((slide, i) => (
+              <div
+                key={slide.id}
+                className="card-item relative flex-shrink-0 w-[85vw] sm:w-[350px] md:w-[400px] cursor-pointer"
+                onClick={() => goToSlide(i)}
+              >
+                {/* Image Container */}
+                <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] rounded-2xl overflow-hidden mb-6">
+                  <Image
+                    src={slide.image}
+                    alt={slide.title}
+                    fill
+                    className="object-cover transition-transform duration-700 hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/20" />
 
-              {/* Decorative grid */}
-              <div className="absolute inset-0 opacity-10"
-                style={{
-                  backgroundImage:
-                    'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)',
-                  backgroundSize: '60px 60px',
-                }}
-              />
-
-              {/* Content */}
-              <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-16">
-                <div className="slide-title text-[clamp(2.5rem,6vw,5rem)] font-bold leading-none tracking-tighter mb-4 font-serif">
-                  {slide.title}
-                </div>
-                <div className="slide-meta flex items-center gap-6 text-muted-foreground">
-                  <span className="text-sm uppercase tracking-widest">
+                  {/* Category Badge overlay */}
+                  <div className="absolute top-4 left-4 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full text-[10px] uppercase tracking-widest text-white border border-white/10">
                     {slide.category}
-                  </span>
-                  <span className="w-8 h-px bg-muted-foreground" />
-                  <span className="text-sm">{slide.year}</span>
+                  </div>
+                </div>
+
+                {/* Card Content */}
+                <div className="px-2">
+                  <div className="flex items-baseline justify-between mb-2">
+                    <h3 className="text-2xl md:text-3xl font-semibold font-serif tracking-tight">
+                      {slide.title}
+                    </h3>
+                    <span className="text-sm font-mono text-muted-foreground">
+                      {slide.year}
+                    </span>
+                  </div>
+                  <div className="w-12 h-px bg-accent/50 mt-4 transition-all duration-300" style={{ opacity: i === activeIndex ? 1 : 0.3 }} />
                 </div>
               </div>
-
-              {/* Corner accent */}
-              <div className="absolute top-8 right-8 md:top-16 md:right-16 text-8xl md:text-[10rem] font-bold opacity-10 leading-none tracking-tighter">
-                {String(slide.id).padStart(2, '0')}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Progress bar */}
-        <div className="mt-6 h-px bg-border rounded-full overflow-hidden">
-          <div
-            ref={progressRef}
-            className="h-full bg-accent origin-left"
-            style={{ transform: 'scaleX(0)' }}
-          />
-        </div>
-
-        {/* Slide indicators */}
-        <div className="mt-6 flex items-center justify-between">
-          <div className="flex gap-2">
+        {/* Mobile Controls & Progress indicators */}
+        <div className="mt-12 flex items-center justify-between">
+          <div className="flex items-center gap-2">
             {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goToSlide(i)}
-                className={`h-1 rounded-full transition-all duration-500 ${
-                  i === activeIndex
-                    ? 'w-8 bg-accent'
-                    : 'w-2 bg-muted-foreground/30 hover:bg-muted-foreground/60'
-                }`}
+                className={`h-1.5 rounded-full transition-all duration-500 ${i === activeIndex
+                    ? 'w-10 bg-accent'
+                    : 'w-3 bg-border hover:bg-muted-foreground/60'
+                  }`}
               />
             ))}
           </div>
-          <span className="text-sm text-muted-foreground font-mono">
-            {String(activeIndex + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}
-          </span>
+
+          <div className="flex items-center gap-4 sm:hidden">
+            <button
+              onClick={() => goToSlide((activeIndex - 1 + slides.length) % slides.length)}
+              className="w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 border-border hover:bg-foreground hover:text-background"
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M10 12L6 8L10 4" />
+              </svg>
+            </button>
+            <button
+              onClick={() => goToSlide((activeIndex + 1) % slides.length)}
+              className="w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 border-border hover:bg-foreground hover:text-background"
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M6 4L10 8L6 12" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </section>

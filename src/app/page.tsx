@@ -17,10 +17,10 @@ export default function Home() {
         <WeddingHero />
         <Slider />
         <Marquee />
-        <Services />
-        <Guidelines />
-        <About />
-        <Marquee />
+        {/* <Services /> */}
+        {/* <Guidelines /> */}
+        {/* <About /> */}
+        {/* <Marquee /> */}
         <Contact />
       </main>
       <Footer />

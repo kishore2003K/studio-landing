@@ -8,28 +8,27 @@ const data = [
     place: 'The Woodlands',
     title: 'MAJESTIC',
     title2: 'NATURE',
-    description: 'A magical wedding framed by towering mountains and lush forests.',
+
     image: '/wedding_hero_bg_1783780173180.png',
   },
   {
     place: 'Bridal Suite',
     title: 'THE PERFECT',
     title2: 'RINGS',
-    description: 'Capturing the essence of your eternal vows.',
     image: '/wedding_card_1_1783780185249.png',
   },
   {
     place: 'Enchanted Forest',
     title: 'A ROMANTIC',
     title2: 'WALK',
-    description: 'A romantic stroll through a sunlit forest path.',
+
     image: '/wedding_card_2_1783780197089.png',
   },
   {
     place: 'Twilight Meadow',
     title: 'MAGICAL',
     title2: 'RECEPTION',
-    description: 'An outdoor reception glowing under the evening stars.',
+
     image: '/wedding_card_3_1783780207183.png',
   },
 ];
@@ -128,8 +127,6 @@ export default function WeddingHero() {
           gsap.set(getSliderItem(i), { x: (index + 1) * numberSize });
         });
 
-        gsap.set(".indicator", { x: -window.innerWidth });
-
         const startDelay = 0.6;
 
         gsap.to(".cover", {
@@ -159,7 +156,7 @@ export default function WeddingHero() {
         gsap.to(".pagination", { y: 0, opacity: 1, ease, delay: startDelay });
         gsap.to(".hero-nav", { y: 0, opacity: 1, ease, delay: startDelay });
         gsap.to(detailsActive, { opacity: 1, x: 0, ease, delay: startDelay });
-        
+
         // Initial setup for the first slide text
         document.querySelector(`${detailsActive} .place-text`)!.textContent = data[order[0]].place;
         document.querySelector(`${detailsActive} .title-1`)!.textContent = data[order[0]].title;
@@ -294,22 +291,20 @@ export default function WeddingHero() {
 
       async function loop() {
         if (!isRunning) return;
-        await animate(".indicator", 2, { x: 0 });
-        await animate(".indicator", 0.8, { x: window.innerWidth, delay: 0.3 });
-        gsap.set(".indicator", { x: -window.innerWidth });
+        await new Promise(resolve => setTimeout(resolve, 3100));
         await step();
         if (isRunning) {
           loopTimeout = setTimeout(loop, 100);
         }
       }
-      
+
       // Initialize after a tiny delay to ensure DOM is ready
       setTimeout(() => init(), 100);
 
       // Add click handlers for manual navigation
       const leftArrow = document.querySelector(".arrow-left");
       const rightArrow = document.querySelector(".arrow-right");
-      
+
       const handleNext = () => {
         clicks += 1;
         if (clicks === 1) {
@@ -325,7 +320,7 @@ export default function WeddingHero() {
         if (rightArrow) rightArrow.removeEventListener("click", handleNext);
       };
     }, containerRef);
-    
+
     return () => ctx.revert();
   }, []);
 
@@ -335,13 +330,13 @@ export default function WeddingHero() {
         <div className="place-text pt-[16px] text-xl font-medium relative before:content-[''] before:absolute before:top-0 before:left-0 before:w-[30px] before:h-[4px] before:rounded-full before:bg-white"></div>
       </div>
       <div className="title-box-1 mt-[2px] h-[60px] md:h-[100px] overflow-hidden">
-        <div className="title-1 font-semibold text-5xl md:text-[72px] font-serif leading-none"></div>
+        <div className="title-1 font-semibold text-3xl md:text-[40px] font-serif leading-none"></div>
       </div>
       <div className="title-box-2 mt-[2px] h-[60px] md:h-[100px] overflow-hidden">
-        <div className="title-2 font-semibold text-5xl md:text-[72px] font-serif leading-none"></div>
+        <div className="title-2 font-semibold text-3xl md:text-[40px] font-serif leading-none"></div>
       </div>
       <div className="desc mt-4 w-[90vw] md:w-[500px] text-white/90"></div>
-      <div className="cta w-[90vw] md:w-[500px] mt-6 flex items-center">
+      {/* <div className="cta w-[90vw] md:w-[500px] mt-6 flex items-center">
         <button className="bookmark border-none bg-accent w-9 h-9 rounded-full text-black grid place-items-center">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
             <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z" clipRule="evenodd" />
@@ -350,7 +345,7 @@ export default function WeddingHero() {
         <button className="discover border border-white bg-transparent h-9 rounded-full text-white px-6 text-xs uppercase ml-4">
           Discover Location
         </button>
-      </div>
+      </div> */}
     </div>
   );
 
@@ -381,8 +376,6 @@ export default function WeddingHero() {
         }
       `}</style>
 
-      <div className="indicator fixed top-0 left-0 right-0 h-[5px] bg-accent z-[60]" />
-
       <nav className="hero-nav fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 py-6 font-medium">
         <div className="flex items-center gap-2 text-sm uppercase tracking-widest">
           <div className="w-4 h-4 bg-white rounded-full flex-shrink-0" />
@@ -399,10 +392,10 @@ export default function WeddingHero() {
 
       {/* Cards */}
       {data.map((item, index) => (
-        <div 
-          key={index} 
-          className={`card card-${index} absolute left-0 top-0 bg-center bg-cover`} 
-          style={{ backgroundImage: `url(${item.image})` }} 
+        <div
+          key={index}
+          className={`card card-${index} absolute left-0 top-0 bg-center bg-cover`}
+          style={{ backgroundImage: `url(${item.image})` }}
         >
           <div className="absolute inset-0 bg-black/40" />
         </div>
@@ -433,13 +426,13 @@ export default function WeddingHero() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
           </svg>
         </div>
-        
+
         <div className="progress-sub-container ml-6 z-[60] w-[200px] md:w-[500px] h-[50px] flex items-center hidden sm:flex">
           <div className="progress-sub-background w-[200px] md:w-[500px] h-[3px] bg-white/20">
             <div className="progress-sub-foreground h-[3px] bg-accent" />
           </div>
         </div>
-        
+
         <div className="slide-numbers hidden md:block ml-6">
           {data.map((_, index) => (
             <div key={index} className={`slide-item slide-item-${index}`}>
